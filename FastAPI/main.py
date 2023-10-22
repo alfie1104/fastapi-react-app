@@ -10,7 +10,13 @@ app = FastAPI()
 
 origins = ["http://localhost:3000"]
 
-app.add_middleware(CORSMiddleware, allow_origins=origins)  # CORS 미들웨어 적용
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)  # CORS 미들웨어 적용
 
 
 # pydantic 모델 선언. Front-end로 부터 받은 request의 validation을 담당
@@ -44,7 +50,7 @@ db_dependency = Annotated[Session, Depends(get_db)]
 models.Base.metadata.create_all(bind=engine)  # fastAPI가 DB 메타데이터를 이용하여 테이블을 자동생성하도록 설정
 
 
-@app.post("/transactions/", response_model=TransationModel)
+@app.post("/transactions", response_model=TransationModel)
 async def create_transaction(transaction: TransactionBase, db: db_dependency):
     db_transaction = models.Transaction(
         **transaction.dict()
